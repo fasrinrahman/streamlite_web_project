@@ -417,6 +417,7 @@ if st.session_state.last_question and st.session_state.last_answer:
     st.write(f"A: {st.session_state.last_answer}")
     
     
+    
 )
 
 
