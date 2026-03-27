@@ -97,6 +97,10 @@ def is_setup_complete() -> bool:
     Returns:
         True if setup is complete, False otherwise.
     """
+    
+    
+    
+    
     return (
         st.session_state.selected_domain is not None
         and st.session_state.knowledge_base is not None
@@ -154,8 +158,31 @@ def load_knowledge_base(uploaded_file: UploadedFile) -> str:
         message starting with "Error:" if loading fails.
     """
     # STUDENT CODE HERE
-    pass
+    try:
+        uploaded_file.seek(0)
+        df = pd.read_csv(uploaded_file)
+        
+        # check coloumn details
+        for col in REQUIRED_CSV_COLUMNS:
+            if col not in df.columns:
+                return (f"Missing CSV required column '{col}'")
 
+        # check empty file data
+        if df.empty:
+            return ("Error - Empty CSV file")
+        
+        parts= []
+        
+        for _,  row in df.iterrows():
+            topic = str(row['topic']).strip()
+            info = str(row['information']).strip()
+            
+            parts.append(f"Topic : {topic}"+"/n"+"Information : {info}"+"/n")
+
+        return ("/n".join(parts))
+    
+    except Exception as  e:
+        return (f"Error : "+{str(e)})
 
 def build_prompt(
     domain: str,
@@ -189,7 +216,7 @@ def build_prompt(
         A complete prompt string ready to send to an AI API.
     """
     # STUDENT CODE HERE
-    pass
+    
 
 
 def get_ai_response(prompt: str) -> str:
