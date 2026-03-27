@@ -371,7 +371,53 @@ def render_chat_tab() -> None:
     - Only store the LAST question and answer (no history)
     """
     # STUDENT CODE HERE
-    pass
+    render_setup_status()
+    if not is_setup_complete():
+        return
+    
+    question = st.text_input(
+    f"Ask anything about {st.session_state.selected_domain}...",
+    key="chat_question"
+    
+    with st.expander("Response style options"):
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        tone = st.selectbox("Tone", TONE_OPTIONS)
+    with col2:
+        length = st.selectbox("Length", LENGTH_OPTIONS)
+    with col3:
+        audience = st.selectbox("Audience", AUDIENCE_OPTIONS)
+        
+if st.button("Get Answer", type="primary"):
+    
+    if not question:
+        st.Warning("Please Ask Me a Question")
+        return
+        
+    prompt = build_prompt(
+        domain=st.session_state.selected_domain,
+        knowledge_base=st.session_state.knowledge_base,
+        tone=tone,
+        length=length,
+        audience=audience,
+        user_question=question
+    )
+    
+    with st.spinner("Processing..."):
+        answer = get_ai_response(prompt)
+
+    st.session_state.last_question = question
+    st.session_state.last_answer = answer
+    
+# display the result 
+if st.session_state.last_question and st.session_state.last_answer:
+    st.markdown("---")
+    st.write(f"Q: {st.session_state.last_question}")
+    st.write(f"A: {st.session_state.last_answer}")
+    
+    
+)
 
 
 def render_quick_questions_tab() -> None:
