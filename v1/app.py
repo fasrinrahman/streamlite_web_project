@@ -258,8 +258,29 @@ def get_ai_response(prompt: str) -> str:
         The AI's response text, or an error message if the call fails.
     """
     # STUDENT CODE HERE
-    pass
+    try:
+        api_key = st.session_state.get("openai_api_key") # within the env file
 
+        if not api_key:
+            return ("Error : Can't Find Valid OpenAi API key")
+        
+        client = OpenAI(api_key=api_key)
+        
+        response = client.chat.cocpletions.create(
+            modal = "gpt-4o-mini",
+            messages = [{"role": "user", "content" : prompt}],
+            max_tokens = 1024
+        )
+        
+        content = response.choices[0].message.content
+        
+        if content:
+            return content
+        else:
+            return "Error: No response from AI"
+        
+    except Exception as e:
+        return (f"Error : Getting AI response: {str(e)}")
 
 # ==============================================================================
 # TAB RENDERING FUNCTIONS TO IMPLEMENT
