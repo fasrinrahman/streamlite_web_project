@@ -312,7 +312,39 @@ def render_setup_tab() -> None:
     - Store filename in st.session_state.uploaded_filename
     """
     # STUDENT CODE HERE
-    pass
+    st.header("setup")
+    
+    selected = st.radio(f
+        "Pick a Domain : ",
+        AVAILABLE_DOMAINS,
+        key="setup_domin"
+    )
+    
+    if st.session_state.selected_domain != selected:
+        st.session_state.selected_domain = selected
+        
+    st.markdown("-----")
+    
+    uploaded_file = st.file_uploader(
+    "Upload CSV Knowledge Base",
+    type=["csv"],
+    key="kb_upload"
+    
+    if uploaded_file is not None:
+    result = load_knowledge_base(uploaded_file)
+    
+    if result.startswith("Error:"):
+        st.error(result)
+    else:
+        st.session_state.knowledge_base = result
+        st.session_state.uploaded_filename = uploaded_file.name
+
+        st.success(f"Loaded: {uploaded_file.name}")
+
+        with st.expander("Preview Knowledge Base"):
+            st.text(result)
+    
+)
 
 
 def render_chat_tab() -> None:
