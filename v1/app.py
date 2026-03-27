@@ -55,26 +55,26 @@ PREBUILT_QUESTIONS: dict[str, list[str]] = {
         "Create a beginner workout plan",
         "What should I eat before training?",
         "How do I stay consistent with fitness?",
-        "How much protein do I need daily?"
+        "How much protein do I need daily?",
     ],
     "Travel": [
         "Plan a 1-day city itinerary",
         "What are the best budget travel tips?",
         "How do I stay safe while traveling solo?",
-        "What should I pack for international travel?"
+        "What should I pack for international travel?",
     ],
     "Biology": [
         "Explain how photosynthesis works",
         "What is the difference between mitosis and meiosis?",
         "How does the immune system fight infections?",
-        "What are the main functions of DNA?"
+        "What are the main functions of DNA?",
     ],
     "Personal Finance": [
         "How do I create a monthly budget?",
         "What should I know about investing?",
         "How do I build an emergency fund?",
-        "Explain compound interest"
-    ]
+        "Explain compound interest",
+    ],
 }
 
 # Prompt style options
@@ -90,6 +90,7 @@ REQUIRED_CSV_COLUMNS: list[str] = ["topic", "information"]
 # HELPER FUNCTIONS (PROVIDED - DO NOT MODIFY)
 # ==============================================================================
 
+
 def is_setup_complete() -> bool:
     """
     Check if both domain and knowledge base are configured.
@@ -97,10 +98,7 @@ def is_setup_complete() -> bool:
     Returns:
         True if setup is complete, False otherwise.
     """
-    
-    
-    
-    
+
     return (
         st.session_state.selected_domain is not None
         and st.session_state.knowledge_base is not None
@@ -133,6 +131,7 @@ def render_setup_status() -> None:
 # FUNCTIONS TO IMPLEMENT
 # ==============================================================================
 
+
 def load_knowledge_base(uploaded_file: UploadedFile) -> str:
     """
     Load the knowledge base from uploaded CSV file.
@@ -161,28 +160,29 @@ def load_knowledge_base(uploaded_file: UploadedFile) -> str:
     try:
         uploaded_file.seek(0)
         df = pd.read_csv(uploaded_file)
-        
+
         # check coloumn details
         for col in REQUIRED_CSV_COLUMNS:
             if col not in df.columns:
-                return (f"Missing CSV required column '{col}'")
+                return f"Missing CSV required column '{col}'"
 
         # check empty file data
         if df.empty:
-            return ("Error - Empty CSV file")
-        
-        parts= []
-        
-        for _,  row in df.iterrows():
-            topic = str(row['topic']).strip()
-            info = str(row['information']).strip()
-            
-            parts.append(f"Topic : {topic}"+"/n"+"Information : {info}"+"/n")
+            return "Error - Empty CSV file"
 
-        return ("/n".join(parts))
-    
-    except Exception as  e:
-        return (f"Error : "+{str(e)})
+        parts = []
+
+        for _, row in df.iterrows():
+            topic = str(row["topic"]).strip()
+            info = str(row["information"]).strip()
+
+            parts.append(f"Topic : {topic}" + "\n" + f"Information : {info}" + "\n")
+
+        return "\n".join(parts)
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
 
 def build_prompt(
     domain: str,
@@ -190,7 +190,7 @@ def build_prompt(
     tone: str,
     length: str,
     audience: str,
-    user_question: str
+    user_question: str,
 ) -> str:
     """
     Build the complete prompt with all 5 required sections.
@@ -232,7 +232,7 @@ def build_prompt(
     
     Answer only using the knowlage base above.
     """
-    
+
     return prompt
 
 
@@ -259,32 +259,34 @@ def get_ai_response(prompt: str) -> str:
     """
     # STUDENT CODE HERE
     try:
-        api_key = st.session_state.get("openai_api_key") # within the env file
+        api_key = st.session_state.get("openai_api_key")  # within the env file
 
         if not api_key:
-            return ("Error : Can't Find Valid OpenAi API key")
-        
+            return "Error : Can't Find Valid OpenAi API key"
+
         client = OpenAI(api_key=api_key)
-        
-        response = client.chat.cocpletions.create(
-            modal = "gpt-4o-mini",
-            messages = [{"role": "user", "content" : prompt}],
-            max_tokens = 1024
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1024,
         )
-        
+
         content = response.choices[0].message.content
-        
+
         if content:
             return content
         else:
             return "Error: No response from AI"
-        
+
     except Exception as e:
-        return (f"Error : Getting AI response: {str(e)}")
+        return f"Error : Getting AI response: {str(e)}"
+
 
 # ==============================================================================
 # TAB RENDERING FUNCTIONS TO IMPLEMENT
 # ==============================================================================
+
 
 def render_setup_tab() -> None:
     """
@@ -313,38 +315,31 @@ def render_setup_tab() -> None:
     """
     # STUDENT CODE HERE
     st.header("setup")
-    
-    selected = st.radio(f
-        "Pick a Domain : ",
-        AVAILABLE_DOMAINS,
-        key="setup_domin"
-    )
-    
+
+    selected = st.radio(f"Pick a Domain : ", AVAILABLE_DOMAINS, key="setup_domain")
+
     if st.session_state.selected_domain != selected:
         st.session_state.selected_domain = selected
-        
+
     st.markdown("-----")
-    
+
     uploaded_file = st.file_uploader(
-    "Upload CSV Knowledge Base",
-    type=["csv"],
-    key="kb_upload"
-    
+        "Upload CSV Knowledge Base", type=["csv"], key="kb_upload"
+    )
+
     if uploaded_file is not None:
-    result = load_knowledge_base(uploaded_file)
-    
-    if result.startswith("Error:"):
-        st.error(result)
-    else:
-        st.session_state.knowledge_base = result
-        st.session_state.uploaded_filename = uploaded_file.name
+        result = load_knowledge_base(uploaded_file)
 
-        st.success(f"Loaded: {uploaded_file.name}")
+        if result.startswith("Error:"):
+            st.error(result)
+        else:
+            st.session_state.knowledge_base = result
+            st.session_state.uploaded_filename = uploaded_file.name
 
-        with st.expander("Preview Knowledge Base"):
-            st.text(result)
-    
-)
+            st.success(f"Loaded: {uploaded_file.name}")
+
+            with st.expander("Preview Knowledge Base"):
+                st.text(result)
 
 
 def render_chat_tab() -> None:
@@ -374,51 +369,48 @@ def render_chat_tab() -> None:
     render_setup_status()
     if not is_setup_complete():
         return
-    
+
     question = st.text_input(
-    f"Ask anything about {st.session_state.selected_domain}...",
-    key="chat_question"
-    
+        f"Ask anything about {st.session_state.selected_domain}...", key="chat_question"
+    )
+
     with st.expander("Response style options"):
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        tone = st.selectbox("Tone", TONE_OPTIONS)
-    with col2:
-        length = st.selectbox("Length", LENGTH_OPTIONS)
-    with col3:
-        audience = st.selectbox("Audience", AUDIENCE_OPTIONS)
-        
-if st.button("Get Answer", type="primary"):
-    
-    if not question:
-        st.Warning("Please Ask Me a Question")
-        return
-        
-    prompt = build_prompt(
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            tone = st.selectbox("Tone", TONE_OPTIONS)
+        with col2:
+            length = st.selectbox("Length", LENGTH_OPTIONS)
+        with col3:
+            audience = st.selectbox("Audience", AUDIENCE_OPTIONS)
+
+
+    if st.button("Get Answer", type="primary"):
+
+        if not question:
+            st.warning("Please Ask Me a Question")
+            return
+
+        prompt = build_prompt(
         domain=st.session_state.selected_domain,
         knowledge_base=st.session_state.knowledge_base,
         tone=tone,
         length=length,
         audience=audience,
-        user_question=question
+        user_question=question,
     )
-    
-    with st.spinner("Processing..."):
-        answer = get_ai_response(prompt)
 
-    st.session_state.last_question = question
-    st.session_state.last_answer = answer
-    
-# display the result 
-if st.session_state.last_question and st.session_state.last_answer:
-    st.markdown("---")
-    st.write(f"Q: {st.session_state.last_question}")
-    st.write(f"A: {st.session_state.last_answer}")
-    
-    
-    
-)
+        with st.spinner("Processing..."):
+            answer = get_ai_response(prompt)
+
+            st.session_state.last_question = question
+            st.session_state.last_answer = answer
+
+# display the result
+    if st.session_state.last_question and st.session_state.last_answer:
+        st.markdown("---")
+        st.write(f"Q: {st.session_state.last_question}")
+        st.write(f"A: {st.session_state.last_answer}")
 
 
 def render_quick_questions_tab() -> None:
@@ -450,12 +442,25 @@ def render_quick_questions_tab() -> None:
     - Use a loop to generate buttons dynamically
     """
     # STUDENT CODE HERE
-    pass
+    render_setup_status()
+
+    if not is_setup_complete():
+        return
+    st.caption("Click a question and thn got to the chat tab")
+    domain = st.session_state.selected_domain
+    questions = PREBUILT_QUESTIONS.get(domain, [])
+
+    def select_question(q: str):
+        st.session_state.chat_question = q
+
+    for q in questions:
+        st.button(q, key=f"preset_{domain}_{q}", on_click=select_question, args=(q,))
 
 
 # ==============================================================================
 # STREAMLIT APP - MAIN INTERFACE (PROVIDED - DO NOT MODIFY)
 # ==============================================================================
+
 
 def initialize_session_state() -> None:
     """
@@ -486,7 +491,9 @@ def main() -> None:
     Setup (first), Chat, and Quick Questions.
     """
     st.title("Domain Q&A Assistant")
-    st.caption("A specialist assistant that only answers questions within its selected domain")
+    st.caption(
+        "A specialist assistant that only answers questions within its selected domain"
+    )
 
     initialize_session_state()
 
@@ -497,7 +504,7 @@ def main() -> None:
             "OpenAI API Key",
             type="password",
             key="openai_api_key",
-            help="Enter your OpenAI API key to get real AI responses"
+            help="Enter your OpenAI API key to get real AI responses",
         )
 
     # Setup tab is first so users complete it before chatting
