@@ -216,7 +216,24 @@ def build_prompt(
         A complete prompt string ready to send to an AI API.
     """
     # STUDENT CODE HERE
+    prompt = f"""
+    Act as a Best assistant in {domain}.
+    You must answer related to {domain}. If you can't , then say you cant only relay on {domain}.
     
+    Knowlage Base : {knowledge_base}
+    
+    Styles : 
+    Tone : {tone}
+    Length: {length}
+    Audience : {audience}
+    
+    User Question :
+    {user_question}
+    
+    Answer only using the knowlage base above.
+    """
+    
+    return prompt
 
 
 def get_ai_response(prompt: str) -> str:
