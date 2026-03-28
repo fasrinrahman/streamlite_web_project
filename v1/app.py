@@ -262,6 +262,7 @@ def get_ai_response(prompt: str) -> str:
         api_key = st.session_state.get("openai_api_key")  # within the env file
 
         if not api_key:
+
             return "Error : Can't Find Valid OpenAi API key"
 
         client = OpenAI(api_key=api_key)
@@ -384,7 +385,6 @@ def render_chat_tab() -> None:
         with col3:
             audience = st.selectbox("Audience", AUDIENCE_OPTIONS)
 
-
     if st.button("Get Answer", type="primary"):
 
         if not question:
@@ -392,13 +392,13 @@ def render_chat_tab() -> None:
             return
 
         prompt = build_prompt(
-        domain=st.session_state.selected_domain,
-        knowledge_base=st.session_state.knowledge_base,
-        tone=tone,
-        length=length,
-        audience=audience,
-        user_question=question,
-    )
+            domain=st.session_state.selected_domain,
+            knowledge_base=st.session_state.knowledge_base,
+            tone=tone,
+            length=length,
+            audience=audience,
+            user_question=question,
+        )
 
         with st.spinner("Processing..."):
             answer = get_ai_response(prompt)
@@ -406,7 +406,7 @@ def render_chat_tab() -> None:
             st.session_state.last_question = question
             st.session_state.last_answer = answer
 
-# display the result
+    # display the result
     if st.session_state.last_question and st.session_state.last_answer:
         st.markdown("---")
         st.write(f"Q: {st.session_state.last_question}")
