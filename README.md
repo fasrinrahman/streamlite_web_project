@@ -64,12 +64,12 @@ Protein,Protein helps in muscle repair and growth
 ## ⚙️ Installation & Setup
 
 1. Clone the repository  
-git clone https://github.com/fasrinrahman/  
+git clone https://github.com/fasrinrahman/streamlite_web_project
 
-2. Install dependencies  
+3. Install dependencies  
 pip install -r requirements.txt  
 
-3. Run the app  
+4. Run the app  
 streamlit run app.py  
 
 ---
