@@ -94,6 +94,9 @@ REQUIRED_CSV_COLUMNS: list[str] = ["topic", "information"]
 def is_setup_complete() -> bool:
     """
     Check if both domain and knowledge base are configured.
+    
+    # todo if when there is a mismatch between the uploaded file and selected domin
+    # so, alert to the user to resubmit the file named same as domine or change the selected domin to match the file name
 
     Returns:
         True if setup is complete, False otherwise.
